@@ -39,7 +39,7 @@ def compare_with_GSM_spanning_tree(data_type, temp_path, nodes_num):
                        50000:"bom_spanning_tree_from_real_case_50000.pkl"} #Larger Spanning Trees with 50000 nodes
     delivery_cycle_pkl_dict={10:'delivery_cycle-10nodes-2021-12-17 04-33.pkl',
                              10000:'delivery_cycle-10000nodes-2021-12-21 09-46-2.pkl'
-                             ,50000:"base_stock_GSM-50000nodes-2021-12-22 03-35.pkl"}
+                             ,50000:"delivery_cycle-50000nodes-2021-12-22 03-35.pkl"}
     step_size_dict={10:3.8e-2, 10000:2.53e-6, 50000:1e-5}
     regula_para_dict={10:1.2e4, 10000:1.46e6, 50000:7e5}
     stop_thresh_dict={10:2e-4, 10000:1e-4, 50000:1.11e-4}
