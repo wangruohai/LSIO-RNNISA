@@ -32,7 +32,7 @@ def evaluate_performance_of_multiple_replications(I_S_0, sim):
 
 
 if __name__ == "__main__":
-    temp_path = "./temp"
+    temp_path = "./data"
     data_type = np.float32
     nodes_num_list = [1000, 5000, 10000, 50000, 100000, 500000]#[1000]#
     for n in nodes_num_list:
