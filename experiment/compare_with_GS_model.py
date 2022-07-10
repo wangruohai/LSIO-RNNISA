@@ -1,5 +1,6 @@
 """
-This module contains the experiments for the paper
+This module contains the experiments for the RNN inspired simulation approach for large-scale inventory optimization problems
+discussed in the paper, "Large-Scale Inventory Optimization: A Recurrent-Neural-Networks-Inspired Simulation Approach".
 
 Author:
     Tan Wang
@@ -16,13 +17,10 @@ from rnnisa.utils.tool_function import my_load
 def compare_with_GSM(data_type, nodes_num, sim, opt, I_S0_K, base_stock_GSM_path):
     I_S_GSM = my_load(base_stock_GSM_path)
     print('max: ', np.max(I_S_GSM))
-    # I_S0 = np.random.randint(low=1, high=100, size=(1, self.nodes_num))
-    # I_S0 = I_S0.astype(self.data_type)
+  
     I_S0 = data_type(I_S0_K) * np.ones((1, nodes_num), dtype=data_type)
     I_S0[0, sim.get_demand_set()] = 40
-    # I_S0 = 0.8*sim.holding_cost
-    # print('IS 0 max: ', np.max(I_S0))
-    # I_S0 = 30*np.ones((1, self.nodes_num), dtype=self.data_type)#np.zeros((1, self.nodes_num), dtype=self.data_type)
+    
     _, I_S = opt.two_stage_procedure(I_S0)
     if I_S.shape[0] < 20:
         print('I_S: ', I_S)
