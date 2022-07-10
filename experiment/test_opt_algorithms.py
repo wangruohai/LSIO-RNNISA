@@ -64,12 +64,12 @@ def evaluate_stage2(data_type, temp_path, nodes_num):
 
 
 if __name__ == "__main__":
-    temp_path = "./temp"
+    data_path = "./data"
     data_type = np.float32
     nodes_num_list = [10000, 50000, 100000, 500000]
     for n in nodes_num_list:
-        compare_optimization_performance(data_type, temp_path, n)
-        evaluate_stage2(data_type, temp_path, n)
+        compare_optimization_performance(data_type, data_path, n)
+        evaluate_stage2(data_type, data_path, n)
 
 
 
