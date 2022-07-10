@@ -1,5 +1,6 @@
 """
-This module contains the simulation optimization algorithm for the RNN based method
+This module contains the simulation optimization algorithm for the RNN inspired simulation approach for large-scale inventory optimization problems 
+discussed in the paper, "Large-Scale Inventory Optimization: A Recurrent-Neural-Networks-Inspired Simulation Approach".
 
 Author:
     Tan Wang
@@ -46,9 +47,6 @@ class SimOpt():
         print('Initial Point', I_S_0)
         r = 3
         regula_para2 = self.__regula_para
-        # print('max holding: ', np.max(self.holding_cost), 'min holding: ', np.min(self.holding_cost))
-        # regula_para2 = regul_factor * (self.holding_cost / np.max(self.holding_cost)) / (self.manu_lead / np.max(self.manu_lead))
-        # regula_para2 = regul_factor  / (self.manu_lead / np.max(self.manu_lead))
         opt_history = []
         t_s_FISTA = time()
         if selected_location is None:
@@ -132,7 +130,7 @@ class SimOpt():
 
         print('number of non-zero:', np.count_nonzero(I_S))
         print('number of negative:', np.sum(np.where(I_S < 0, 1, 0)))
-        # print('number of selected location: ', np.sum(np.where(I_S >= 1, 1, 0)))
+
         print_run_time('SGD', t_s_SGD)
         path = os.path.join(self.__data_path, 'history_SGD_decay_' + str(I_S_0.shape[1]) +
                             'nodes_' + datetime.now().strftime('%Y-%m-%d %H-%M') + '.pkl')
@@ -176,240 +174,8 @@ class SimOpt():
         return I_S
 
 
-    def bisection_search(self, I_S_0, selected_location=None):
-        t_s = time()
-        init_step_size=self.__step_size
-        if selected_location is None:
-            I_S = I_S_0
-        else:
-            I_S = np.multiply(I_S_0, selected_location)
-        cost_eval_num = 0
-        grad_eval_num = 0
-        print('Optimization start at: ', datetime.now().strftime('%Y-%m-%d %H:%M'))
-        return_flag = False
-        while True:
-            avg_cost, grad_mean = self.__grad_f(I_S, self.__rep_num)
-            grad_eval_num += 1
-            if selected_location is not None:
-                grad_mean = np.multiply(grad_mean, selected_location)
-            print(',(', avg_cost, ',', cost_eval_num, ',', grad_eval_num, ')')
-            delta_Is = -init_step_size * grad_mean
-            temp_k = 1.0
-            while True:
-                temp_I_S = I_S + temp_k * delta_Is
-                temp_I_S = np.maximum(temp_I_S, 0)
-                avg_cost2 = self.__cost_f(temp_I_S, self.__rep_num)
-                cost_eval_num += 1
-                if avg_cost2 < avg_cost:
-                    I_S = temp_I_S
-                    break
-                else:
-                    temp_k = temp_k * 0.5
-                if temp_k < self.__stop_thresh:
-                    return_flag = True
-                    break
-            if return_flag:
-                break
-
-        print('number of non-zero: ', np.count_nonzero(I_S))
-        print('number of selected location: ', np.sum(np.where(I_S >= 1, 1, 0)))
-        print('Time used for bisection_search: %6.2f minutes' % ((time() - t_s) / 60))
-        return I_S
-
-
-    def ACC_SSGD(self, I_S_0, max_epoch=np.inf, selected_location=None):
-        r = 3
-        print('Initial Point: ', I_S_0)
-        opt_history = []
-        t_start = time()
-        if selected_location is None:
-            I_S = I_S_0
-        else:
-            I_S = np.multiply(I_S_0, selected_location)
-        I_S_former = I_S
-        print('ACC_SSGD start at: ', datetime.now().strftime('%Y-%m-%d %H:%M'))
-        cost_x = self.__cost_f(I_S, self.__rep_num)
-        opt_history.append((cost_x, cost_x + np.sum(np.abs(I_S)) * self.__regula_para, np.count_nonzero(I_S)))
-        _print_opt_info(cost_x, I_S, 0, self.__regula_para)
-
-        former_cost = cost_x
-        k = 0
-        step_t = self.__step_size
-        y = I_S
-        while True:
-            k += 1
-            cost_y, grad_mean = self.__grad_f(y, self.__rep_num)
-            grad_mean = grad_mean + self.__regula_para * np.sign(I_S)
-            if selected_location is not None:
-                grad_mean = np.multiply(grad_mean, selected_location)
-            I_S = y - step_t * grad_mean  # * 51 / (k + 50)
-            if self.__positive_flag: I_S = np.maximum(I_S, 0)
-            y = I_S + (k / (k + r)) * (I_S - I_S_former)
-            cost_x = self.__cost_f(I_S, self.__rep_num)
-            opt_history.append((cost_x, cost_x + np.sum(np.abs(I_S)) * self.__regula_para,
-                                np.count_nonzero(I_S)))
-            _print_opt_info(cost_x, I_S, k, self.__regula_para)
-            if k == max_epoch: break
-            if abs(cost_x - former_cost + np.sum(np.abs(I_S)) * self.__regula_para - np.sum(
-                    np.abs(I_S_former)) * self.__regula_para) < self.__stop_thresh:  # stopping_threshold * former_cost:#
-                break
-            else:
-                former_cost = cost_x
-                I_S_former = I_S
-        print('number of non-zero: ', np.count_nonzero(I_S))
-        print('number of negative: ', np.sum(np.where(I_S < 0, 1, 0)))
-        print('Run Time for ACC_SSGD: %6.2f minutes' % ((time() - t_start) / 60))
-        path = os.path.join(self.__data_path, 'history_ACC_SSGD_' + str(I_S_0.shape[1]) +
-                            'nodes_' + datetime.now().strftime('%Y-%m-%d %H-%M') + '.pkl')
-        my_dump(opt_history, path)
-        return I_S
-
-
-    def ISTA(self, I_S_0, selected_location=None):
-        print('Initial Point: ', I_S_0)
-        regula_para2 = self.__regula_para
-        # print('max holding: ', np.max(self.holding_cost), 'min holding: ', np.min(self.holding_cost))
-        # regula_para2 = regul_factor * (self.holding_cost / np.max(self.holding_cost)) / (self.manu_lead / np.max(self.manu_lead))
-        # regula_para2 = regul_factor  / (self.manu_lead / np.max(self.manu_lead))
-        opt_history = []
-        t_start = time()
-        if selected_location is None:
-            I_S = I_S_0
-        else:
-            I_S = np.multiply(I_S_0, selected_location)
-        I_S_former = I_S
-
-        print('ISTA start at: ', datetime.now().strftime('%Y-%m-%d %H:%M'))
-        cost_x, grad_mean = self.__grad_f(I_S, self.__rep_num)
-        if selected_location is not None:
-            grad_mean = np.multiply(grad_mean, selected_location)
-        opt_history.append((cost_x, cost_x + np.sum(np.abs(I_S)) * self.__regula_para, np.count_nonzero(I_S)))
-        _print_opt_info(cost_x, I_S, 0, self.__regula_para)
-
-        former_cost = cost_x
-        k = 0
-        step_t = self.__step_size
-        while True:
-            k += 1
-            I_S = prox((I_S_former - step_t * grad_mean), step_t * regula_para2)
-            if self.__positive_flag: I_S = np.maximum(I_S, 0)
-            cost_x, grad_mean = self.__grad_f(I_S, self.__rep_num)
-            if selected_location is not None:
-                grad_mean = np.multiply(grad_mean, selected_location)
-            opt_history.append((cost_x, cost_x + np.sum(np.abs(I_S)) * self.__regula_para,
-                                np.count_nonzero(I_S)))
-            _print_opt_info(cost_x, I_S, k, self.__regula_para)
-            # if abs(cost_x-former_cost) < stopping_threshold*former_cost:
-            if abs(cost_x - former_cost + np.sum(np.abs(I_S)) * self.__regula_para - np.sum(
-                    np.abs(I_S_former)) * self.__regula_para) < self.__stop_thresh:  # stopping_threshold * former_cost:#
-                break
-            else:
-                former_cost = cost_x
-                I_S_former = I_S
-
-        print('number of non-zero: ', np.count_nonzero(I_S))
-        print('number of negative: ', np.sum(np.where(I_S < 0, 1, 0)))
-        print('Run Time for ISTA: %6.2f minutes' % ((time() - t_start) / 60))
-        path = os.path.join(self.__data_path, 'history_ISTA_' + str(I_S_0.shape[1]) +
-                            'nodes_' + datetime.now().strftime('%Y-%m-%d %H-%M') + '.pkl')
-        my_dump(opt_history, path)
-        return I_S, k
-
-
-    def FISTA_line_search(self, I_S_0,  selected_location=None):
-        print('Initial Point: ', I_S_0)
-        regula_para2 = self.__regula_para
-        # print('max holding: ', np.max(self.holding_cost), 'min holding: ', np.min(self.holding_cost))
-        # regula_para2 = regul_factor * (self.holding_cost / np.max(self.holding_cost)) / (self.manu_lead / np.max(self.manu_lead))
-        # regula_para2 = regul_factor  / (self.manu_lead / np.max(self.manu_lead))
-        opt_history = []
-        t_start = time()
-        if selected_location is None:
-            I_S = I_S_0
-        else:
-            I_S = np.multiply(I_S_0, selected_location)
-        I_S_former = I_S
-        cost_eval_num = 0
-        grad_eval_num = 0
-        print('Optimization start at: ', datetime.now().strftime('%Y-%m-%d %H:%M'))
-        cost_x = self.__cost_f(I_S, self.__rep_num)
-        cost_eval_num += 1
-        opt_history.append((cost_x, cost_eval_num, grad_eval_num,
-                            cost_x + np.sum(np.abs(I_S)) * self.__regula_para,
-                            np.count_nonzero(I_S)))
-        _print_opt_info(cost_x, I_S, 0, self.__regula_para)
-        former_cost = np.inf
-        return_flag = False
-        k = 0
-        step_t = self.__step_size
-        while True:
-            k = k + 1
-            y = I_S + ((k - 2) / (k + 1)) * (I_S - I_S_former)
-            cost_y, grad_mean = self.__grad_f(y, self.__rep_num)
-            grad_eval_num += 1
-            if selected_location is not None:
-                grad_mean = np.multiply(grad_mean, selected_location)
-            # print('grad: ',grad_mean)
-            # print('I_S: ',I_S)
-            # print('max grad: ', np.max(grad_mean), 'min grad: ', np.min(grad_mean))
-            # grad_mean = np.maximum(grad_mean,-10 / step_t)
-            # grad_mean = np.minimum(grad_mean, 20 / step_t)
-            temp_I_S = prox((y - step_t * grad_mean), step_t * regula_para2)
-            if self.__positive_flag: temp_I_S = np.maximum(temp_I_S, 0)
-            if self.__step_bound1 is not None: temp_I_S = cal_step_bound(I_S, temp_I_S, self.__step_bound1)
-            cost_x = self.__cost_f(temp_I_S, self.__rep_num)
-            cost_eval_num += 1
-            while cost_x > (cost_y + np.dot((temp_I_S - y), grad_mean.T)[0, 0] + 0.5 * np.sum(
-                    np.square(temp_I_S - y)) / step_t):
-                step_t = 0.6 * step_t  # 0.6
-                # if np.max(np.abs(grad_mean))*step_t < 0.1:
-                if step_t < self.__stop_thresh * self.__step_size:
-                    return_flag = True
-                    break
-                temp_I_S = prox((y - step_t * grad_mean), step_t * regula_para2)
-                if self.__positive_flag: temp_I_S = np.maximum(temp_I_S, 0)
-                if self.__step_bound1 is not None: temp_I_S = cal_step_bound(I_S, temp_I_S, self.__step_bound1)
-                cost_x = self.__cost_f(temp_I_S, self.__rep_num)
-                cost_eval_num += 1
-            if former_cost < cost_x:
-                k = 0
-                step_t = self.__step_size
-                former_cost = np.inf
-            else:
-                I_S_former = I_S
-                I_S = temp_I_S
-                former_cost = cost_x
-                opt_history.append((cost_x, cost_eval_num, grad_eval_num,
-                                    cost_x + np.sum(np.abs(I_S)) * self.__regula_para,
-                                    np.count_nonzero(I_S)))
-                _print_opt_info(cost_x, I_S, k, self.__regula_para)
-            if return_flag:
-                break
-
-        opt_history.append((cost_x, cost_eval_num, grad_eval_num,
-                            cost_x + np.sum(np.abs(I_S)) * self.__regula_para,
-                            np.count_nonzero(I_S)))
-        _print_opt_info(cost_x, I_S, k, self.__regula_para)
-        print('number of non-zero: ', np.count_nonzero(I_S))
-        print('number of negative: ', np.sum(np.where(I_S < 0, 1, 0)))
-        print('Run Time for FISTA_line_search: %6.2f minutes' % ((time() - t_start) / 60))
-        path = os.path.join(self.__data_path, 'history_FISTA_search_' + str(I_S_0.shape[1]) +
-                            'nodes_' + datetime.now().strftime('%Y-%m-%d %H-%M') + '.pkl')
-        my_dump(opt_history, path)
-        print('FISTA_line_search terminated at', datetime.now().strftime('%Y-%m-%d %H-%M'))
-
-        return I_S
-
-
     def two_stage_procedure(self, I_S_0, selected_location=None):
         t_s = time()
-        """
-        # I_S=sim.FISTA_line_search(I_S_0=I_S0, sample_num=40, init_step_size=0.001, regul_factor=3000,
-        #                           stopping_threshold=0.001)
-        # _ = sim.FISTA_line_search(I_S_0=I_S0, sample_num=10, init_step_size=0.0000004, regul_factor=10000000,
-        #                             stopping_threshold=0.001,            #                             positive_flag=True)
-        I_S_1 = self.FISTA_line_search(I_S_0=I_S_0, selected_location=selected_location)
-        """
         I_S_1, _ = self.FISTA(I_S_0=I_S_0, selected_location=selected_location)
         selected_location = np.where(np.abs(I_S_1) <= 0, 0, 1)  # np.where(I_S >= 1, 1, 0)
         I_S_2 = self.SGD(I_S_0=I_S_1, selected_location=selected_location)
@@ -420,8 +186,6 @@ class SimOpt():
 
 
 def _print_opt_info(cost, I_S, epoch_num, regul_factor=None):
-    # print(',(', cost_x, ',', cost_x + np.sum(np.abs(I_S)) * regul_factor, ',',
-    #       np.sum(np.where(np.abs(I_S) < self.equal_tolerance, 0, 1)), ')')
     if regul_factor is not None:
         print(',(', format(cost, '.3e'), ',', format(cost + np.sum(np.abs(I_S)) * regul_factor, '.3e'), ',',
               np.count_nonzero(I_S), ',', epoch_num, ')')
