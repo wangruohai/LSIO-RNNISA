@@ -60,7 +60,6 @@ class SimOpt():
         _print_opt_info(cost_x, I_S, 0, self.__regula_para)
         former_cost = cost_x  # + np.sum(np.abs(I_S)) * regul_factor
         k = 0
-        # step_k = step_size
         y = I_S
         while True:
             k += 1
@@ -85,13 +84,11 @@ class SimOpt():
                 former_cost = current_cost
                 I_S_former = I_S
         print('number of non-zero:', np.count_nonzero(I_S))
-        print('number of negative:', np.sum(np.where(I_S < 0, 1, 0)))
         print_run_time('FISTA', t_s_FISTA)
         path = os.path.join(self.__data_path, 'history_FISTA_' + str(I_S_0.shape[1]) +
                             'nodes_' + datetime.now().strftime('%Y-%m-%d %H-%M') + '.pkl')
         my_dump(opt_history, path)
         print('FISTA terminated at', datetime.now().strftime('%Y-%m-%d %H-%M'))
-
         return I_S, k
 
 
@@ -129,8 +126,6 @@ class SimOpt():
             if self.__step_bound2 is not None: I_S = cal_step_bound(I_S_former, I_S, self.__step_bound2)
 
         print('number of non-zero:', np.count_nonzero(I_S))
-        print('number of negative:', np.sum(np.where(I_S < 0, 1, 0)))
-
         print_run_time('SGD', t_s_SGD)
         path = os.path.join(self.__data_path, 'history_SGD_decay_' + str(I_S_0.shape[1]) +
                             'nodes_' + datetime.now().strftime('%Y-%m-%d %H-%M') + '.pkl')
@@ -146,8 +141,6 @@ class SimOpt():
         epoch_num = 0
         former_cost = 0
         opt_history = []
-        # print('decaying step size')
-        # while np.any(np.abs(I_S - I_S_former)>1):
         while True:
             avg_cost, grad_mean = self.__grad_f(I_S, self.__rep_num)
             _print_opt_info(avg_cost, I_S, epoch_num, self.__regula_para)
@@ -165,8 +158,6 @@ class SimOpt():
             epoch_num += 1
 
         print('number of non-zero: ', np.count_nonzero(I_S))
-        print('number of negative: ', np.sum(np.where(I_S < 0, 1, 0)))
-        print('number of selected location: ', np.sum(np.where(I_S >= 1, 1, 0)))
         print_run_time('SGD_subgradient', t_s_SSGD)
         path = os.path.join(self.__data_path, 'history_SGD_subgradient_' + str(I_S_0.shape[1])
                             + 'nodes_' + datetime.now().strftime('%Y-%m-%d %H-%M') + '.pkl')
