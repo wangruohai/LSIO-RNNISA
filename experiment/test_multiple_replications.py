@@ -32,11 +32,11 @@ def evaluate_performance_of_multiple_replications(I_S_0, sim):
 
 
 if __name__ == "__main__":
-    temp_path = "./data"
+    data_path = "./data"
     data_type = np.float32
     nodes_num_list = [1000, 5000, 10000, 50000, 100000, 500000]#[1000]#
     for n in nodes_num_list:
-        sim = simulation.Simulation(data_type=data_type, duration=100, data_path=temp_path,
+        sim = simulation.Simulation(data_type=data_type, duration=100, data_path=data_path,
                                     network_name='test_bom_' + str(n) + '.pkl',
                                     penalty_factor=2.0)
         I_S_0 = data_type(10) * np.ones((1, n), dtype=data_type)
