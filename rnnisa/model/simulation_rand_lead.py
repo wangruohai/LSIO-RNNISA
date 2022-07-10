@@ -24,7 +24,6 @@ class Simulation():
         self.__duration = duration
         self.__data_type = data_type
         print('Data Type:', data_type)
-        print('penalty_factor:', penalty_factor)
         self.prepare_data(data_path, network_name, penalty_factor, data_type, delivery_cycle)
         self.__seed_num = 0
 
@@ -42,13 +41,11 @@ class Simulation():
             
             maxlayer = 0
             for i in range(B.shape[0]):
-                
                 temp = B * temp
                 temp.eliminate_zeros()
                 if temp.nnz == 0:
                     maxlayer = i
                     break
-
             return maxlayer + 1
 
         path = os.path.join(data_path, network_name)
@@ -59,7 +56,6 @@ class Simulation():
         self.__B = nx.adjacency_matrix(G, weight='weight')
         
         self.__stage_num = count_layer(self.__B)
-        print("stage num:", self.__stage_num)
         self.__nodes_num = self.__B.shape[0]
         print('nodes number:', self.__nodes_num)
 
@@ -82,7 +78,6 @@ class Simulation():
             i += 1
 
         self.__demand_set = demand_node
-        print('number of demand node:', len(self.__demand_set))
 
         self.penalty_coef = data_type(penalty_factor) * self.__hold_coef
         self.__B = self.__B.astype(data_type)
@@ -129,7 +124,6 @@ class Simulation():
             delivery_cycles = delivery_cycle * np.ones(self.__nodes_num, dtype=int)
         else:
             delivery_cycles = my_load(os.path.join(data_path, delivery_cycle))
-            print('max delivery cycle:', np.max(delivery_cycles))
 
         self.__delivery_shift = np.zeros_like(time_stamp)
         for t in range(self.__duration):
