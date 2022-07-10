@@ -1,5 +1,6 @@
 """
-This module contains the experiments for the paper
+This module contains the experiments for the RNN inspired simulation approach for large-scale inventory optimization problems
+discussed in the paper, "Large-Scale Inventory Optimization: A Recurrent-Neural-Networks-Inspired Simulation Approach".
 
 Author:
     Tan Wang
@@ -11,32 +12,10 @@ import numpy as np
 
 
 def compare_opt_algorithms(sim, opt, I_S0):
-    # compare two algorithms: FISTA, SSGD
-    # _ = sim.SGD_subgradient(I_S_0=I_S_0, sample_num=10, step_size=0.0000001*10, regul_factor=10000000,
-    #                           stopping_threshold=5000000000*10, positive_flag=True)#0.000001, regul_factor=9000000
-    # _ = sim.FISTA_line_search(I_S_0=I_S_0, sample_num=10, init_step_size=0.0000001*0.2,
-    #                             regul_factor=10000000, stopping_threshold=0.001, force_positive=True)
     _, max_epoch = opt.FISTA(I_S_0=I_S0)  # init_step_size=0.0000001*0.2
     sim.reset_seed()
     _ = opt.SSGD(I_S_0=I_S0, max_epoch=max_epoch)  # stopping_threshold=5e10
     sim.reset_seed()
-    # compare four algorithms: FISTA, ISTA, ACC_SGD_subgradient, SGD_subgradient
-    """
-    _, epoch1 = self.FISTA(I_S_0=I_S0, sample_num=sample_num, step_size=step_size,
-                           regul_factor=regul_factor, stopping_threshold=stopping_threshold,
-                           selected_location=None, positive_flag=positive_flag,
-                           step_bound=False, decaying_step=False) #init_step_size=0.0000001*0.2
-    _, epoch2= self.ISTA(I_S_0=I_S0, sample_num=sample_num, step_size=step_size,
-                        regul_factor=regul_factor, stopping_threshold=stopping_threshold,
-                        positive_flag=positive_flag)#step_size=4e-7
-    max_epoch = min(epoch1, epoch2)
-    _ = self.ACC_SGD_subgradient(I_S_0=I_S0, sample_num=sample_num, step_size=step_size,
-                                regul_factor=regul_factor, stopping_threshold=stopping_threshold,
-                                max_epoch=max_epoch, positive_flag=positive_flag)
-    _ = self.SGD_subgradient(I_S_0=I_S0, sample_num=sample_num, step_size=step_size,
-                            regul_factor=regul_factor, stopping_threshold=stopping_threshold,
-                            max_epoch=max_epoch, positive_flag=positive_flag)#stopping_threshold=5e10
-                            """
 
 
 def compare_optimization_performance(data_type, temp_path, nodes_num):
@@ -73,12 +52,6 @@ def evaluate_stage2(data_type, temp_path, nodes_num):
                           stop_thresh_ratio=stop_thresh_ratio_dict[nodes_num],
                           step_size_ratio=step_size_ratio_dict[nodes_num], decay_mode=1)
     I_S_1, I_S_2 = opt.two_stage_procedure(I_S_0)
-    # selected_location = np.where(np.abs(I_S_1) < self.equal_tolerance, 0, 1)  # np.where(I_S >= 1, 1, 0)
-    # print('number of selected location in stage 1: ', np.sum(selected_location))
-    # safety_set = np.where(I_S_2 > 0)
-    # safety_set = list(safety_set[1])
-    # safety_demand = set(safety_set) & set(sim.get_demand_set())
-    # print('number of safety_demand: ', len(safety_demand))
     optimal_cost1 = sim.evaluate_cost(I_S_1, 100)
     sim.cut_seed(100)
     optimal_cost2 = sim.evaluate_cost(I_S_2, 100)
