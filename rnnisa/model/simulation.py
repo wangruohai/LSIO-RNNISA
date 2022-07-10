@@ -111,7 +111,6 @@ class Simulation():
             delivery_cycles = delivery_cycle * np.ones(self.__nodes_num, dtype=int)
         else:
             delivery_cycles = my_load(os.path.join(data_path, delivery_cycle))
-            print('max delivery cycle:', np.max(delivery_cycles))
 
         self.__delivery_shift = np.zeros_like(time_stamp)
         for t in range(self.__duration):
@@ -121,8 +120,6 @@ class Simulation():
     def _print_info(self):
         print('Data Type:', self.__data_type)
         print('nodes number:', self.__nodes_num)
-        print('number of demand node:', len(self.__demand_set))
-        print('penalty_factor:', np.min(self.__penalty_coef / self.__hold_coef))
 
     def reset_seed(self):
         self.__seed_num = 0
