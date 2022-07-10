@@ -6,11 +6,6 @@ Author:
 """
 
 import os
-print('OS')
-# os.environ["MKL_NUM_THREADS"] = "1"
-# # os.environ["NUMEXPR_NUM_THREADS"] = "1"
-# # os.environ["OMP_NUM_THREADS"] = "1"
-# os.environ["OPENBLAS_NUM_THREADS"] = "1"  # this
 import numpy as np
 from random import seed, normalvariate
 from multiprocessing import Pool, cpu_count
