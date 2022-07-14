@@ -1,5 +1,6 @@
 """
-This module contains the experiments for the paper
+This module contains the experiments for the RNN inspired simulation approach for large-scale inventory optimization problems
+discussed in the paper, "Large-Scale Inventory Optimization: A Recurrent-Neural-Networks-Inspired Simulation Approach".
 
 Author:
     Tan Wang
