@@ -58,12 +58,12 @@ class SimOpt():
         cost_x = self.__cost_f(I_S, self.__rep_num)
         opt_history.append((cost_x, cost_x + np.sum(np.abs(I_S)) * self.__regula_para, np.count_nonzero(I_S)))
         _print_opt_info(cost_x, I_S, 0, self.__regula_para)
-        former_cost = cost_x  # + np.sum(np.abs(I_S)) * regul_factor
+        former_cost = cost_x  
         k = 0
         y = I_S
         while True:
             k += 1
-            step_k = self.__step_size * 51 / (k ** self.__decay_mode + 50)  # 51/(int(decaying_step)*(k**2)+50)#51 / (k + 50)#
+            step_k = self.__step_size * 51 / (k ** self.__decay_mode + 50) 
             cost_y, grad_mean = self.__grad_f(y, self.__rep_num)
             if selected_location is not None:
                 grad_mean = np.multiply(grad_mean, selected_location)
@@ -121,7 +121,7 @@ class SimOpt():
             else:
                 former_cost = avg_cost
             I_S_former = I_S
-            I_S = I_S - step_size * grad_mean * 101 / (epoch_num + 100)  # 201 / (epoch_num + 200)
+            I_S = I_S - step_size * grad_mean * 101 / (epoch_num + 100)
             if self.__positive_flag: I_S = np.maximum(I_S, 0)
             if self.__step_bound2 is not None: I_S = cal_step_bound(I_S_former, I_S, self.__step_bound2)
 
@@ -148,12 +148,12 @@ class SimOpt():
                                 np.count_nonzero(I_S)))
             if epoch_num == max_epoch: break
             current_cost = avg_cost  # + np.sum(np.abs(I_S)) * regul_factor
-            if abs(current_cost - former_cost) < self.__stop_thresh * former_cost:  # stopping_threshold:  #
+            if abs(current_cost - former_cost) < self.__stop_thresh * former_cost:  
                 break
             else:
                 former_cost = current_cost
             grad2 = grad_mean + self.__regula_para * np.sign(I_S)
-            I_S = I_S - self.__step_size * grad2 * 50 / (epoch_num ** self.__decay_mode + 50)  # 201
+            I_S = I_S - self.__step_size * grad2 * 50 / (epoch_num ** self.__decay_mode + 50) 
             if self.__positive_flag: I_S = np.maximum(I_S, 0)
             epoch_num += 1
 
