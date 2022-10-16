@@ -28,7 +28,7 @@ def evaluate_performance_of_simulation_model(I_S_0, sim, rep_num, print_flag=Tru
 if __name__ == "__main__":
     data_path = "./data"
     data_type = np.float32
-    nodes_num_list = [1000, 5000, 10000, 50000, 100000, 500000]#[1000]#
+    nodes_num_list = [1000, 5000, 10000, 50000, 100000, 500000]
     warm_flag = True
     for n in nodes_num_list:
         sim = simulation.Simulation(data_type=data_type, duration=100, data_path=data_path,
