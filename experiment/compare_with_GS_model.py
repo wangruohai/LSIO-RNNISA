@@ -25,10 +25,10 @@ def compare_with_GSM(data_type, nodes_num, sim, opt, I_S0_K, base_stock_GSM_path
     if I_S.shape[0] < 20:
         print('I_S: ', I_S)
         print('I_S_GSM: ', I_S_GSM)
-    optimal_cost = sim.evaluate_cost(I_S=I_S, eval_num=100)  # , print_flag=True
+    optimal_cost = sim.evaluate_cost(I_S=I_S, eval_num=100)  
     print('optimal cost of RNN-based method: %.3e' % optimal_cost)
     sim.cut_seed(100)
-    optimal_cost = sim.evaluate_cost(I_S=I_S_GSM, eval_num=100)  # , print_flag=True
+    optimal_cost = sim.evaluate_cost(I_S=I_S_GSM, eval_num=100) 
     print('optimal cost of GSM: %.3e' % optimal_cost)
     sim.reset_seed()
 
