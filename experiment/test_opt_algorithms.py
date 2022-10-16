@@ -12,9 +12,9 @@ import numpy as np
 
 
 def compare_opt_algorithms(sim, opt, I_S0):
-    _, max_epoch = opt.FISTA(I_S_0=I_S0)  # init_step_size=0.0000001*0.2
+    _, max_epoch = opt.FISTA(I_S_0=I_S0)  
     sim.reset_seed()
-    _ = opt.SSGD(I_S_0=I_S0, max_epoch=max_epoch)  # stopping_threshold=5e10
+    _ = opt.SSGD(I_S_0=I_S0, max_epoch=max_epoch) 
     sim.reset_seed()
 
 
