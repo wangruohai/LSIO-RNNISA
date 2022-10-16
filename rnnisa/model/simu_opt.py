@@ -195,8 +195,8 @@ def prox(x, t):
 
 
 def cal_step_bound(x_former, x, bound_info):
-    upper = np.maximum(bound_info[0], bound_info[1] * x_former)#np.maximum(7.5, 0.15 * x_former)
-    lower = np.minimum(bound_info[2], bound_info[3] * x_former)#np.minimum(-15, -0.23 * x_former)
+    upper = np.maximum(bound_info[0], bound_info[1] * x_former)
+    lower = np.minimum(bound_info[2], bound_info[3] * x_former)
     return x_former + np.maximum(lower, np.minimum(x - x_former, upper))
 
 
