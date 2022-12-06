@@ -40,7 +40,7 @@ The `experiment` folder contains the code for all the numerical experiments in t
 If you use the code, please cite its corresponding paper:
 
 ```
-@article{wan2022large,
+@article{wang2022large,
   title={Large-Scale Inventory Optimization: A Recurrent Neural Networks–Inspired Simulation Approach},
   author={Tan Wang, L. Jeff Hong},
   journal={INFORMS Journal on Computing},
