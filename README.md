@@ -1,6 +1,6 @@
 # LSIO-RNNISA 
 
-This package contains the implementation of the RNN inspired simulation approach for large-scale inventory optimization problems discussed in the paper, "Large-Scale Inventory Optimization: A Recurrent-Neural-Networks-Inspired Simulation Approach"
+This package contains the implementation of the RNN inspired simulation approach for large-scale inventory optimization problems discussed in the paper, "Large-Scale Inventory Optimization: A Recurrent-Neural-Networks-Inspired Simulation Approach" (https://doi.org/10.1287/ijoc.2022.1253)
 
 
 ## Data
@@ -44,6 +44,9 @@ If you use the code, please cite its corresponding paper:
   title={Large-Scale Inventory Optimization: A Recurrent Neural Networks–Inspired Simulation Approach},
   author={Tan Wang, L. Jeff Hong},
   journal={INFORMS Journal on Computing},
-  year={2022}
+  volume = {35},
+  number = {1},
+  pages = {196-215},
+  year = {2023}
 }     
 ```  
